@@ -18,6 +18,15 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+#.env파일 로드
+load_dotenv()
+SECRET_KEY=os.environ.get('DJANGO_SECRET')
+KAKAO_CLIENT_ID = os.getenv('KAKAO_CLIENT_ID')
+KAKAO_CLIENT_SECRET = os.getenv('KAKAO_CLIENT_SECRET')
+KAKAO_REDIRECT_URI = os.getenv('KAKAO_REDIRECT_URI')
+
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
