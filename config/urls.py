@@ -22,4 +22,5 @@ urlpatterns = [
     path('auths/',include('auths.urls')),
     path('calendar/',include('calendars.urls')),
     path('timer/', include('timers.urls'))
+    path('tasks/',include('tasks.urls')),
 ]
