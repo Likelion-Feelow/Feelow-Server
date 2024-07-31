@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     
     'auths',
     'calendars',
+    'timers',
     'tasks',
 
 ]
