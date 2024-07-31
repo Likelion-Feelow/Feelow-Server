@@ -66,23 +66,6 @@ def delete_task_and_choice_emotion(request, id):
         serializer = EmotionUpdateSerializer(task, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            # patch 후 url을 통해 timer 생성 
-            create_timer_response = requests.post(
-                "http://localhost:8000/timers/create-for-task/", #url 수정 필요
-                json={
-                    "task": task.id,
-                    "emotion": task.current_emotion,
-                    "duration": task.task_duration
-                },
-                headers={"Authorization": f"Bearer {request.auth.token}"}
-            )
-
-            if create_timer_response.status_code == 201:
-                return Response(serializer.data, status=HTTP_200_OK)
-            else:
-                return Response(create_timer_response.json(), status=create_timer_response.status_code)
-
-        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
             
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
