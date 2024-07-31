@@ -1,4 +1,5 @@
-from django.shortcuts import render,get_object_or_404
+from rest_framework.status import HTTP_400_BAD_REQUEST
+from django.shortcuts import get_object_or_404, redirect
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -8,8 +9,7 @@ from calendars.serializers import CalendarSerializer
 from rest_framework import serializers,status
 from .serializers import ViewTaskSerializer,CreateTaskSerializer,TaskSerializer,EmotionUpdateSerializer
 from datetime import datetime, timedelta, date
-import calendar
-# Create your views here.
+import calendar, requests
 
 @api_view(['POST', 'GET'])
 @permission_classes([IsAuthenticated])
@@ -66,5 +66,4 @@ def delete_task_and_choice_emotion(request, id):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
-    
     

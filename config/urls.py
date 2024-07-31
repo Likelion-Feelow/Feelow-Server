@@ -24,5 +24,6 @@ urlpatterns = [
     #path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('auths/',include('auths.urls')),
     path('calendar/',include('calendars.urls')),
+    path('timers/', include('timers.urls')),
     path('tasks/',include('tasks.urls')),
 ]
