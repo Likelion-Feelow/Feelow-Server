@@ -6,10 +6,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Calendars
-#from tasks.models import Tasks
+from tasks.models import Tasks
 from .serializers import CalendarSerializer
 from rest_framework import serializers,status
-#from tasks.serializers import TaskSerializer
+from tasks.serializers import TaskSerializer
 from datetime import datetime, timedelta, date
 import calendar
 
@@ -44,12 +44,12 @@ def get_calendar(request):
     
     ## 할일에 대한 시리얼라이저, tasks 구현 후 주석처리 풀기
     today = datetime.today().date()
-    #today_tasks = Tasks.objects.filter(user=user, calendar__date=today)
-    #today_task_serializer = TaskSerializer(today_tasks, many=True)
+    today_tasks = Tasks.objects.filter(user=user, calendar__date=today)
+    today_task_serializer = TaskSerializer(today_tasks, many=True)
     
     response_data = {
         "calendars": all_dates,  # Include all dates in the response
-        #"today_tasks": today_task_serializer.data
+        "today_tasks": today_task_serializer.data
     }
     
     return Response(response_data, status=status.HTTP_200_OK)
