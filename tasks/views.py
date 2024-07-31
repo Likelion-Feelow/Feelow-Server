@@ -8,7 +8,9 @@ from calendars.serializers import CalendarSerializer
 from rest_framework import serializers,status
 from .serializers import ViewTaskSerializer,CreateTaskSerializer,TaskSerializer,EmotionUpdateSerializer
 from datetime import datetime, timedelta, date
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 import calendar
+import requests
 # Create your views here.
 
 @api_view(['POST', 'GET'])
@@ -64,6 +66,58 @@ def delete_task_and_choice_emotion(request, id):
         serializer = EmotionUpdateSerializer(task, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=400)
+            # patch 후 url을 통해 timer 생성 
+            create_timer_response = requests.post(
+                "http://localhost:8000/timers/create-for-task/", #url 수정 필요
+                json={
+                    "task": task.id,
+                    "emotion": task.current_emotion,
+                    "duration": task.task_duration
+                },
+                headers={"Authorization": f"Bearer {request.auth.token}"}
+            )
+
+            if create_timer_response.status_code == 201:
+                return Response(serializer.data, status=HTTP_200_OK)
+            else:
+                return Response(create_timer_response.json(), status=create_timer_response.status_code)
+
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
             
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_feedback(request, id):
+    task = get_object_or_404(Tasks, id=id, user=request.user)
+    
+    if request.method == 'GET':
+        current_emotion = task.current_emotion
+        if not current_emotion:
+            return Response({"error": "Current emotion is not set."}, status=HTTP_400_BAD_REQUEST)
+        
+        feedback = get_chatgpt_feedback(current_emotion)
+        task.feedback = feedback
+        task.save()
+        serializer = TaskSerializer(task)
+        return Response(serializer.data, status=HTTP_200_OK)
+
+def get_chatgpt_feedback(emotion):
+    api_url = "https://api.openai.com/v1/completions"
+    headers = {
+        "Authorization": f"Bearer YOUR_OPENAI_API_KEY",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "model": "text-davinci-003",
+        "prompt": f"You have completed your task while feeling {emotion}. Please provide a feedback in less than 200 characters with Korean.",
+        "max_tokens": 100,
+        "n": 1,
+        "stop": None,
+        "temperature": 0.7,
+    }
+
+    response = requests.post(api_url, headers=headers, json=data)
+    if response.status_code == 200:
+        feedback = response.json()['choices'][0]['text'].strip()
+        return feedback
+    else:
+        return "Error in fetching feedback from ChatGPT."
