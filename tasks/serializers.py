@@ -43,4 +43,4 @@ class CreateTaskSerializer(serializers.ModelSerializer):
 class EmotionUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tasks
-        fields = ["task_name",'current_emotion', 'changed_emotion', "feedback"]
+        fields = ["task_name", "current_emotion", "changed_emotion"]

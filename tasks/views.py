@@ -7,12 +7,12 @@ from calendars.models import Calendars
 from tasks.models import Tasks
 from calendars.serializers import CalendarSerializer
 from rest_framework import serializers,status
-from .serializers import ViewTaskSerializer,CreateTaskSerializer,TaskSerializer,EmotionUpdateSerializer
+from .serializers import *
 from datetime import datetime, timedelta, date
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
-import calendar
-import requests
-# Create your views here.
+import openai
+
+openai.api_key = "sk-None-SMd2TPNVewi3Jrqmn1r3T3BlbkFJcTR0IPMYTPd0yrtGE40m"
 
 @api_view(['POST', 'GET'])
 @permission_classes([IsAuthenticated])
@@ -70,25 +70,23 @@ def delete_task_and_choice_emotion(request, id):
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
             
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def get_feedback(request, id):
+#     task = get_object_or_404(Tasks, id=id)
+#     emotion = task.current_emotion
+#     if not emotion:
+#         return Response({"error": "Task has no current emotion set."}, status=400)
+#     feedback = "hi" #get_chatgpt_feedback(emotion)
+#     return Response({"feedback": feedback}, status=200)
 
-def get_chatgpt_feedback(emotion):
-    api_url = "https://api.openai.com/v1/completions"
-    headers = {
-        "Authorization": f"Bearer YOUR_OPENAI_API_KEY",
-        "Content-Type": "application/json"
-    }
-    data = {
-        "model": "text-davinci-003",
-        "prompt": f"You have completed your task while feeling {emotion}. Please provide a feedback in less than 200 characters with Korean.",
-        "max_tokens": 100,
-        "n": 1,
-        "stop": None,
-        "temperature": 0.7,
-    }
-
-    response = requests.post(api_url, headers=headers, json=data)
-    if response.status_code == 200:
-        feedback = response.json()['choices'][0]['text'].strip()
-        return feedback
-    else:
-        return "Error in fetching feedback from ChatGPT."
+# def get_chatgpt_feedback(emotion):
+#     completion = openai.ChatCompletion.create(
+#         model="gpt-4",
+#         messages=[
+#             {"role": "system", "content": "You are a helpful assistant. Provide feedback based on the user's emotion."},
+#             {"role": "user", "content": f"You have completed your task while feeling {emotion}. Please provide feedback in less than 200 characters in Korean."}
+#         ]
+#     )
+#     feedback = completion.choices[0].message['content'].strip()
+#     return feedback
