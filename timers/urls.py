@@ -1,10 +1,6 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import TimerViewSet
-
-router = DefaultRouter()
-router.register(r'timers', TimerViewSet)
+from django.urls import path
+from . import views
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('task/<int:task_id>/', views.get_timer_by_task, name='get_timer_by_task'),
 ]

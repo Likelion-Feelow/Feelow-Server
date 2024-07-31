@@ -1,4 +1,5 @@
-from django.shortcuts import render,get_object_or_404
+from rest_framework.status import HTTP_400_BAD_REQUEST
+from django.shortcuts import get_object_or_404, redirect
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -66,22 +67,9 @@ def delete_task_and_choice_emotion(request, id):
         serializer = EmotionUpdateSerializer(task, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
             
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_feedback(request, id):
-    task = get_object_or_404(Tasks, id=id, user=request.user)
-    
-    if request.method == 'GET':
-        current_emotion = task.current_emotion
-        if not current_emotion:
-            return Response({"error": "Current emotion is not set."}, status=HTTP_400_BAD_REQUEST)
-        
-        feedback = get_chatgpt_feedback(current_emotion)
-        task.feedback = feedback
-        task.save()
-        serializer = TaskSerializer(task)
-        return Response(serializer.data, status=HTTP_200_OK)
 
 def get_chatgpt_feedback(emotion):
     api_url = "https://api.openai.com/v1/completions"

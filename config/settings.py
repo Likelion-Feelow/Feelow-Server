@@ -52,10 +52,11 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     
     'auths',
     'calendars',
-    'timers'
+    'timers',
     'tasks',
 
 ]
