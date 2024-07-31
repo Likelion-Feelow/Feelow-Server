@@ -1,4 +1,5 @@
-from django.shortcuts import render,get_object_or_404
+from rest_framework.status import HTTP_400_BAD_REQUEST
+from django.shortcuts import get_object_or_404, redirect
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -9,6 +10,7 @@ from rest_framework import serializers,status
 from .serializers import ViewTaskSerializer,CreateTaskSerializer,TaskSerializer,EmotionUpdateSerializer
 from datetime import datetime, timedelta, date
 import calendar
+import requests
 # Create your views here.
 
 @api_view(['POST', 'GET'])
@@ -64,6 +66,24 @@ def delete_task_and_choice_emotion(request, id):
         serializer = EmotionUpdateSerializer(task, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=400)
-            
+            #timer 생성 
+            create_timer_response = requests.post(
+                "http://localhost:8000/timers/create-for-task/", #url 수정 필요
+                json={
+                    "task": task.id,
+                    "emotion": task.current_emotion,
+                    "duration": task.task_duration
+                },
+                headers={"Authorization": f"Bearer {request.auth.token}"}
+            )
+            if create_timer_response.status_code == 201:
+                timer_id = create_timer_response.json().get('id')
+                if timer_id:
+                    # 타이머 생성 후 타이머 조회 페이지로 리디렉션
+                    return redirect(f"/timers/{timer_id}/")
+                else:
+                    return Response({"error": "Timer creation failed"}, status=HTTP_400_BAD_REQUEST)
+            else:
+                return Response(create_timer_response.json(), status=create_timer_response.status_code)
+
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
