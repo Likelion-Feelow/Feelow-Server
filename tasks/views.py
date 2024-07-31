@@ -66,5 +66,4 @@ def delete_task_and_choice_emotion(request, id):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
-    
-    
+            

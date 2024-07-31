@@ -1,67 +1,62 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import Tasks, Timers, Emotions
-from .serializers import EmotionUpdateSerializer#, TaskSerializer, TimerSerializer
-import requests
+from rest_framework.permissions import IsAuthenticated
+from .models import Timers
+from .serializers import TimerSerializer
 
-class TaskViewSet(viewsets.ModelViewSet):
-    queryset = Tasks.objects.all()
-    serializer_class = TaskSerializer
+class TimerViewSet(viewsets.ModelViewSet):
+    queryset = Timers.objects.all()
+    serializer_class = TimerSerializer
+    permission_classes = [IsAuthenticated]
 
-    @action(detail=True, methods=['patch'], url_path='update-emotion')
-    def update_emotion(self, request, pk=None):
-        task = self.get_object()
-        serializer = EmotionUpdateSerializer(task, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
+    @action(detail=False, methods=['post'], url_path='create-for-task')
+    def create_timer_for_task(self, request):
+        task = request.data.get('task')
+        emotion = request.data.get('emotion')
+        duration = request.data.get('duration')
 
-            # 타이머 생성 로직
-            timer_data = self.create_timer_data(task)
-            timer_response = requests.post(
-                "http://your_timer_service_url/timers/", 
-                json=timer_data, 
-                headers={"Authorization": f"Bearer {request.auth}"}
-            )
-            if timer_response.status_code == 201:
-                return Response(timer_response.json(), status=status.HTTP_201_CREATED)
-            else:
-                return Response(timer_response.json(), status=timer_response.status_code)
+        if not task or not emotion or not duration:
+            return Response({"error": "Task, emotion, and duration are required."}, 
+            status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def create_timer_data(self, task):
-        emotion = task.task_emotion
-        duration = task.task_duration
         cycle_number = (duration // 1800) + (1 if duration % 1800 != 0 else 0)
-
+        
         if cycle_number > 0:
             focus_time, break_time = self.get_focus_break_time(emotion)
-            return {
-                "task": task.id,
+            timer_data = {
+                "task": task,
                 "emotion": emotion,
                 "focus_time": focus_time,
                 "break_time": break_time,
                 "cycle_number": cycle_number
             }
         else:
-            return {
-                "task": task.id,
+            timer_data = {
+                "task": task,
                 "emotion": emotion,
                 "focus_time": duration,
                 "break_time": 0,
                 "cycle_number": 0
             }
 
+        serializer = TimerSerializer(data=timer_data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def get_focus_break_time(self, emotion):
-        if emotion in Emotions.HAPPY:
+        if emotion in ['기쁨', '희열', '흥분', '행복', '자신감', '열정']:
             return 25 * 60, 5 * 60
-        elif emotion in Emotions.CALM:
+        elif emotion in ['안정감', '안도', '휴식', '만족스러움', '차분함']:
             return 20 * 60, 10 * 60
-        elif emotion in Emotions.DEPRESSED:
+        elif emotion in ['초조함', '걱정', '긴장', '공포', '망설임']:
             return 15 * 60, 15 * 60
-        elif emotion in Emotions.ANXIETY:
+        elif emotion in ['두려움', '허무', '실망', '외로움', '후회']:
             return 10 * 60, 20 * 60
-        elif emotion in Emotions.ANGER:
+        elif emotion in ['짜증', '격분', '불만', '분개', '적대심']:
             return 5 * 60, 25 * 60
         return 25 * 60, 5 * 60
