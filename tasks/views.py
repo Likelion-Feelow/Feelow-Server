@@ -86,10 +86,10 @@ def get_feedback(request, id):
 def get_chatgpt_feedback(task_name, emotion):
     try:
         completion = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant. Provide feedback based on the user's emotion."},
-                {"role": "user", "content": f"You have completed your task which is {task_name} while feeling {emotion}. Please provide feedback in less than 200 characters in Korean."}
+                {"role": "user", "content": f"You have completed your task which is {task_name} while feeling {emotion}. Please provide feedback in less than 300 characters in Korean."}
             ]
         )
         feedback = completion.choices[0].message.content.strip()
