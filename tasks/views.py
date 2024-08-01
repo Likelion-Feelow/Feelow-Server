@@ -14,6 +14,9 @@ import calendar, requests
 @api_view(['POST', 'GET'])
 @permission_classes([IsAuthenticated])
 def create_and_get_task(request):
+    print("Authorization Header:", request.headers.get('Authorization'))  # 헤더 출력
+    print("User:", request.user)
+    
     user=request.user
     today=date.today()
     

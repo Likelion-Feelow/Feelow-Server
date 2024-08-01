@@ -53,6 +53,9 @@ def login(request):
         refresh=RefreshToken.for_user(user)
         access_token = refresh.access_token
         
+        # 디버그 로그 추가
+        print("Generated Access Token:", access_token)
+        
         return Response({
                 'refresh_token': str(refresh),
                 'access_token': str(access_token),
@@ -154,7 +157,7 @@ def kakao_login(request):
     token_response = requests.post(token_url, headers=headers, data=data)
     if token_response.status_code != 200:
         print("Failed to obtain access token from Kakao")
-        return JsonResponse({'error': 'Failed to obtain access token from Kakao'}, status=400)
+        return Response({'error': 'Failed to obtain access token from Kakao'}, status=400)
     
     tokens = token_response.json()
     print("Token Response:", tokens)
@@ -181,7 +184,7 @@ def kakao_login(request):
         print("User Info:", user_info)
         
         if 'id' not in user_info:
-                return JsonResponse({'error': 'Failed to obtain user info from Kakao'}, status=400)
+                return Response({'error': 'Failed to obtain user info from Kakao'}, status=400)
         
         
         nickname=user_info['properties']['nickname']
@@ -207,8 +210,8 @@ def kakao_login(request):
                 'nickname': nickname
                 }, status=200)
     else:  
-        return JsonResponse({'error': 'Failed to obtain access token'}, status=400)
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
+        return Response({'error': 'Failed to obtain access token'}, status=400)
+    return Response({'error': 'Invalid request method'}, status=405)
 
 
 
