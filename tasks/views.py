@@ -1,4 +1,3 @@
-import logging
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from django.shortcuts import get_object_or_404, redirect
 from rest_framework.decorators import api_view, permission_classes
@@ -12,9 +11,6 @@ from .serializers import *
 from datetime import datetime, timedelta, date
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 import os, openai
-
-logger = logging.getLogger(__name__)
-openai.api_key = "sk-None-SMd2TPNVewi3Jrqmn1r3T3BlbkFJcTR0IPMYTPd0yrtGE40m"
 
 @api_view(['POST', 'GET'])
 @permission_classes([IsAuthenticated])
@@ -95,8 +91,6 @@ def get_chatgpt_feedback(task_name, emotion):
         feedback = completion.choices[0].message.content.strip()
         return feedback
     except openai.OpenAIError as e:
-        logger.error(f"OpenAI API error: {str(e)}")
         return "Error in fetching feedback from ChatGPT."
     except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
         return "An unexpected error occurred."
