@@ -7,9 +7,10 @@ from calendars.models import Calendars
 from tasks.models import Tasks
 from calendars.serializers import CalendarSerializer
 from rest_framework import serializers,status
-from .serializers import ViewTaskSerializer,CreateTaskSerializer,TaskSerializer,EmotionUpdateSerializer
+from .serializers import *
 from datetime import datetime, timedelta, date
-import calendar, requests
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+import os, openai
 
 @api_view(['POST', 'GET'])
 @permission_classes([IsAuthenticated])
@@ -66,4 +67,30 @@ def delete_task_and_choice_emotion(request, id):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
-    
+            
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_feedback(request, id):
+    task = get_object_or_404(Tasks, id=id)
+    emotion = task.current_emotion
+    task_name = task.task_name
+    if not emotion:
+        return Response({"error": "Task has no current emotion set."}, status=400)
+    feedback = get_chatgpt_feedback(task_name, emotion)
+    return Response({"feedback": feedback}, status=200)
+
+def get_chatgpt_feedback(task_name, emotion):
+    try:
+        completion = openai.ChatCompletion.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant. Provide feedback based on the user's emotion."},
+                {"role": "user", "content": f"You have completed your task which is {task_name} while feeling {emotion}. Please provide feedback in less than 300 characters in Korean."}
+            ]
+        )
+        feedback = completion.choices[0].message.content.strip()
+        return feedback
+    except openai.OpenAIError as e:
+        return "Error in fetching feedback from ChatGPT."
+    except Exception as e:
+        return "An unexpected error occurred."
