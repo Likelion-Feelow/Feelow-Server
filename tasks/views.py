@@ -10,7 +10,8 @@ from rest_framework import serializers,status
 from .serializers import *
 from datetime import datetime, timedelta, date
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
-import os, openai
+import os
+#import penai
 
 @api_view(['POST', 'GET'])
 @permission_classes([IsAuthenticated])
@@ -70,7 +71,7 @@ def delete_task_and_choice_emotion(request, id):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
-            
+''' 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_feedback(request, id):
@@ -97,3 +98,5 @@ def get_chatgpt_feedback(task_name, emotion):
         return "Error in fetching feedback from ChatGPT."
     except Exception as e:
         return "An unexpected error occurred."
+        
+'''
