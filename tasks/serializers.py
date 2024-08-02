@@ -8,7 +8,8 @@ class ViewTaskSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Tasks
-        fields = ["id","date","task_name","task_duration"]
+        fields = ["id","date","task_name","task_duration","current_emotion","changed_emotion"]
+        
         
         
 class TaskSerializer(serializers.ModelSerializer):
