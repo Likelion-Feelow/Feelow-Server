@@ -86,6 +86,18 @@ MIDDLEWARE = [
 # 모든 도메인에서 접근을 허용하려면:
 CORS_ALLOW_ALL_ORIGINS = True
 
+#
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    'Authorization',
+    'Content-Type',
+    'withCredentials',
+]
+CORS_EXPOSE_HEADERS = ['Authorization']
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
 
 ROOT_URLCONF = 'config.urls'
 
