@@ -46,9 +46,9 @@ def get_calendar(request):
     #             calendar_entry.superior_emotion = None
     #             calendar_entry.save()
  
-    # today = datetime.today().date()
-    # today_tasks = Tasks.objects.filter(user=user, calendar__date=today)
-    # today_task_serializer = TaskSerializer(today_tasks, many=True)
+    today = datetime.today().date()
+    today_tasks = Tasks.objects.filter(user=user, calendar__date=today)
+    today_task_serializer = TaskSerializer(today_tasks, many=True)
     
     # response_data = {
     #     "calendars": all_dates,  # Include all dates in the response
@@ -62,7 +62,8 @@ def get_calendar(request):
             })
 
     response_data = {
-        "calendars": all_dates
+        "calendars": all_dates,
+        "today_tasks": today_task_serializer.data
     }
     
     return Response(response_data, status=status.HTTP_200_OK)
