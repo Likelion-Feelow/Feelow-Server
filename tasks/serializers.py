@@ -41,6 +41,7 @@ class CreateTaskSerializer(serializers.ModelSerializer):
     
     
 class EmotionUpdateSerializer(serializers.ModelSerializer):
+    '''
     class Meta:
         model = Tasks
         fields = ["task_name", "current_emotion", "changed_emotion"]
@@ -51,6 +52,23 @@ class EmotionUpdateSerializer(serializers.ModelSerializer):
         instance.changed_emotion = validated_data.get('changed_emotion', instance.changed_emotion)
         instance.save()
         self.update_superior_emotion(instance.calendar)
+        return instance
+    '''
+    
+    #통계를 위해 수정함
+    focus_time = serializers.IntegerField(required=False)
+    break_time = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = Tasks
+        fields = ['current_emotion', 'changed_emotion', 'focus_time', 'break_time']
+
+    def update(self, instance, validated_data):
+        instance.current_emotion = validated_data.get('current_emotion', instance.current_emotion)
+        instance.changed_emotion = validated_data.get('changed_emotion', instance.changed_emotion)
+        instance.focus_time = validated_data.get('focus_time', instance.focus_time)
+        instance.break_time = validated_data.get('break_time', instance.break_time)
+        instance.save()
         return instance
 
     def update_superior_emotion(self, calendar):
@@ -74,3 +92,10 @@ class EmotionUpdateSerializer(serializers.ModelSerializer):
         else:
             calendar.superior_emotion = None
         calendar.save()
+        
+#통계를 위해 추가        
+class TaskStatisticsSerializer(serializers.Serializer):
+    nickname = serializers.CharField()
+    total_focus_time = serializers.IntegerField()
+    total_break_time = serializers.IntegerField()
+    emotion_counts = serializers.DictField(child=serializers.IntegerField())

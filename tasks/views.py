@@ -11,6 +11,7 @@ from .serializers import *
 from datetime import datetime, timedelta, date
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 import os
+from auths.models import CustomUser
 #import penai
 
 @api_view(['POST', 'GET'])
@@ -100,3 +101,38 @@ def get_chatgpt_feedback(task_name, emotion):
         return "An unexpected error occurred."
         
 '''
+#통게를 위해 추가
+from .serializers import TaskStatisticsSerializer
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_task_statistics(request):
+    year = int(request.GET.get('year'))
+    month = int(request.GET.get('month'))
+    day = int(request.GET.get('day'))
+
+    target_date = date(year, month, day)
+    tasks = Tasks.objects.filter(calendar__date=target_date)
+
+    total_focus_time = sum(task.focus_time for task in tasks)
+    total_break_time = sum(task.break_time for task in tasks)
+
+    emotions = [task.current_emotion for task in tasks] + [task.changed_emotion for task in tasks]
+    emotion_categories = [Emotions.get_emotion_category(emotion) for emotion in emotions if emotion]
+    emotion_counts = Counter(emotion_categories)
+    
+    # 현재 사용자의 닉네임을 가져옵니다.
+    user = request.user
+    nickname = user.nickname  # CustomUser 모델에서 닉네임 필드를 가져옵니다.
+
+
+    data = {
+        'nickname': nickname,
+        'total_focus_time': total_focus_time,
+        'total_break_time': total_break_time,
+        'emotion_counts': dict(emotion_counts)
+    }
+
+    serializer = TaskStatisticsSerializer(data=data)
+    if serializer.is_valid():
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

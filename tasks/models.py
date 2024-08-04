@@ -12,5 +12,7 @@ class Tasks(models.Model):
     current_emotion=models.CharField(max_length=50,blank=True, null=True) #할 일 전 서브 이모션(하나만 선택 가능하게 할 경우)
     changed_emotion=models.CharField(max_length=50,blank=True, null=True) #할 일 마친 후 서브 이모션(하나만 선택 가능하게 할 경우)
     feedback=models.CharField(max_length=200,blank=True,null=True)
-
+    #통계를 위해 추가
+    focus_time = models.IntegerField(default=0)  # 초 단위.
+    break_time = models.IntegerField(default=0)  # 초 단위.
     #task_emotion = models.TextField(blank=True, null=True)  # 서브 이모션 여러개 선택 가능하게 할 경우 text필드 사용해 리스트 받아오기
