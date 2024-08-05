@@ -191,3 +191,11 @@ REST_FRAMEWORK = {
         # 'rest_framework.permissions.AllowAny', # 누구나 접근
     ),
 }
+
+#토큰 유효기간 설정
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  # 엑세스 토큰 유효기간
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # 리프레시 토큰 유효기간
+}
