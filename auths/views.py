@@ -22,7 +22,38 @@ User = get_user_model()
 def verify(request):
     return Response({'detail': 'Token is verified.'}, status=status.HTTP_200_OK)
 
+'''
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout(request):
+    try:
+        refresh_token = request.data.get("refresh_token")
+        is_kakao_user = request.data.get("is_kakao_user", False)
+        
+        # 일반 로그아웃 처리
+        if refresh_token:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        
+        # 카카오 로그아웃 처리
+        if is_kakao_user:
+            authorization_header = request.headers.get('Authorization')
+            if authorization_header and authorization_header.startswith('Bearer '):
+                access_token = authorization_header.split(' ')[1]
+                logout_url = "https://kapi.kakao.com/v1/user/logout"
+                headers = {
+                    "Authorization": f"Bearer {access_token}"
+                }
+                response = requests.post(logout_url, headers=headers)
+                if response.status_code != 200:
+                    return Response({'error': 'Failed to log out from Kakao'}, status=response.status_code)
+        
+        return Response({'message': '로그아웃 성공'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+'''
+#원래 로그아웃 뷰. 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout(request):

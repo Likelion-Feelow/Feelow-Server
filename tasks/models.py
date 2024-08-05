@@ -15,4 +15,5 @@ class Tasks(models.Model):
     #통계를 위해 추가
     focus_time = models.IntegerField(default=0)  # 초 단위.
     break_time = models.IntegerField(default=0)  # 초 단위.
+    cycle_count = models.IntegerField(default=1)  # 새 필드 추가
     #task_emotion = models.TextField(blank=True, null=True)  # 서브 이모션 여러개 선택 가능하게 할 경우 text필드 사용해 리스트 받아오기

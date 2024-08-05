@@ -63,7 +63,9 @@ def delete_task_and_choice_emotion(request, id):
     task = get_object_or_404(Tasks, id=id)
     
     if request.method == 'DELETE':
+        calendar = task.calendar
         task.delete()
+        EmotionUpdateSerializer().update_superior_emotion(calendar)  # 작업 삭제 후 superior_emotion 업데이트
         return Response(status=204)
 
     if request.method == 'PATCH':
@@ -112,9 +114,21 @@ def get_task_statistics(request):
 
     target_date = date(year, month, day)
     tasks = Tasks.objects.filter(calendar__date=target_date)
+    total_focus_time = sum(task.focus_time * task.cycle_count for task in tasks if task.cycle_count is not None)
+    total_break_time = sum(task.break_time * task.cycle_count for task in tasks if task.cycle_count is not None)
 
-    total_focus_time = sum(task.focus_time for task in tasks)
-    total_break_time = sum(task.break_time for task in tasks)
+
+    #total_focus_time = sum(task.focus_time for task in tasks)
+    #total_break_time = sum(task.break_time for task in tasks)
+    
+    
+    # 해당 달의 1일부터 지정된 날짜까지의 기간
+    #start_date = target_date.replace(day=1)
+    
+    #tasks = Tasks.objects.filter(calendar__date__range=(start_date, target_date))
+
+    #total_focus_time = sum(task.focus_time for task in tasks)
+    #total_break_time = sum(task.break_time for task in tasks)
 
     emotions = [task.current_emotion for task in tasks] + [task.changed_emotion for task in tasks]
     emotion_categories = [Emotions.get_emotion_category(emotion) for emotion in emotions if emotion]

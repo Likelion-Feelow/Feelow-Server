@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from auths.models import CustomUser
 from collections import Counter
 from .models import Tasks, Calendars
 from .emotions import Emotions
@@ -39,44 +40,35 @@ class CreateTaskSerializer(serializers.ModelSerializer):
         validated_data['calendar']=calendar
         return Tasks.objects.create(**validated_data)
     
-    
-class EmotionUpdateSerializer(serializers.ModelSerializer):
-    '''
-    class Meta:
-        model = Tasks
-        fields = ["task_name", "current_emotion", "changed_emotion"]
 
-    def update(self, instance, validated_data):
-        instance.task_name = validated_data.get('task_name', instance.task_name)
-        instance.current_emotion = validated_data.get('current_emotion', instance.current_emotion)
-        instance.changed_emotion = validated_data.get('changed_emotion', instance.changed_emotion)
-        instance.save()
-        self.update_superior_emotion(instance.calendar)
-        return instance
-    '''
-    
+class EmotionUpdateSerializer(serializers.ModelSerializer):
     #통계를 위해 수정함
     focus_time = serializers.IntegerField(required=False)
     break_time = serializers.IntegerField(required=False)
-
+    cycle_count = serializers.IntegerField(required=False)  # 사이클 수 추가
+    
     class Meta:
         model = Tasks
-        fields = ['current_emotion', 'changed_emotion', 'focus_time', 'break_time']
+        #fields = ['current_emotion', 'changed_emotion', 'focus_time', 'break_time']
+        fields = ['current_emotion', 'changed_emotion', 'focus_time', 'break_time', 'cycle_count']
 
     def update(self, instance, validated_data):
         instance.current_emotion = validated_data.get('current_emotion', instance.current_emotion)
         instance.changed_emotion = validated_data.get('changed_emotion', instance.changed_emotion)
         instance.focus_time = validated_data.get('focus_time', instance.focus_time)
         instance.break_time = validated_data.get('break_time', instance.break_time)
+        instance.cycle_count = validated_data.get('cycle_count', instance.cycle_count)
         instance.save()
+        self.update_superior_emotion(instance.calendar)
         return instance
-
+    
     def update_superior_emotion(self, calendar):
-        tasks_for_day = Tasks.objects.filter(user=calendar.user, calendar=calendar)
-        # Print current_emotion for debugging
+        tasks_for_day = Tasks.objects.filter(user=calendar.user, calendar=calendar, current_emotion__isnull=False).exclude(current_emotion='')
+        
         print("Tasks and Emotions:")
         for task in tasks_for_day:
             print(f"Task: {task.task_name}, Emotion: {task.current_emotion}")
+        
 
         emotion_categories = [Emotions.get_emotion_category(task.current_emotion) for task in tasks_for_day if task.current_emotion]
         
@@ -92,7 +84,7 @@ class EmotionUpdateSerializer(serializers.ModelSerializer):
         else:
             calendar.superior_emotion = None
         calendar.save()
-        
+
 #통계를 위해 추가        
 class TaskStatisticsSerializer(serializers.Serializer):
     nickname = serializers.CharField()
