@@ -72,7 +72,7 @@ class EmotionUpdateSerializer(serializers.ModelSerializer):
         return instance
 
     def update_superior_emotion(self, calendar):
-        tasks_for_day = Tasks.objects.filter(user=calendar.user, calendar=calendar)
+        tasks_for_day = Tasks.objects.filter(user=calendar.user, calendar=calendar, current_emotion__isnull=False).exclude(current_emotion='')
         # Print current_emotion for debugging
         print("Tasks and Emotions:")
         for task in tasks_for_day:
