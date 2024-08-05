@@ -71,15 +71,10 @@ class EmotionUpdateSerializer(serializers.ModelSerializer):
         
 
         emotion_categories = [Emotions.get_emotion_category(task.current_emotion) for task in tasks_for_day if task.current_emotion]
-        
-        # Print emotion categories for debugging
-        print(f"Emotion Categories: {emotion_categories}")
 
         if emotion_categories:
             emotion_counts = Counter(emotion_categories)
             most_common_emotion, _ = emotion_counts.most_common(1)[0]
-            # Print most common emotion for debugging
-            print(f"Most Common Emotion: {most_common_emotion}")
             calendar.superior_emotion = most_common_emotion
         else:
             calendar.superior_emotion = None
