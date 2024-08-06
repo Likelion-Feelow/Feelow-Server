@@ -72,6 +72,13 @@ class EmotionUpdateSerializer(serializers.ModelSerializer):
 
         emotion_categories = [Emotions.get_emotion_category(task.current_emotion) for task in tasks_for_day if task.current_emotion]
 
+        emotion_categories = []
+        for task in tasks_for_day:
+            if task.current_emotion:
+                emotion_categories.append(Emotions.get_emotion_category(task.current_emotion))
+            if task.changed_emotion:
+                emotion_categories.append(Emotions.get_emotion_category(task.changed_emotion))
+        
         if emotion_categories:
             emotion_counts = Counter(emotion_categories)
             most_common_emotion, _ = emotion_counts.most_common(1)[0]
