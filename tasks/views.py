@@ -12,7 +12,6 @@ from datetime import datetime, timedelta, date
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 import os
 from auths.models import CustomUser
-#import penai
 
 @api_view(['POST', 'GET'])
 @permission_classes([IsAuthenticated])
@@ -28,7 +27,6 @@ def create_and_get_task(request):
         if serializer.is_valid():
             serializer.save()
             task = serializer.save()
-            #return Response(serializer.data, status=201)
             response_serializer = TaskSerializer(task)
             return Response(response_serializer.data, status=201)
         return Response(serializer.errors, status=400)
@@ -37,15 +35,7 @@ def create_and_get_task(request):
         year = request.GET.get('year')
         month = request.GET.get('month')
         day = request.GET.get('day')
-        '''
-        if year and month and day:
-            target_date = date(int(year), int(month), int(day))
-            tasks = Tasks.objects.filter(user=user, calendar__date=target_date)
-        else:
-            tasks = Tasks.objects.filter(user=user, calendar__date=date.today())
         
-        serializer = ViewTaskSerializer(tasks, many=True)
-        '''
         if year and month and day:
             try:
                 target_date = date(int(year), int(month), int(day))
@@ -115,23 +105,10 @@ def get_task_statistics(request):
 
     target_date = date(year, month, day)
     tasks = Tasks.objects.filter(user=user, calendar__date=target_date) #현재 사용자 구별 위해 추가
-    #tasks = Tasks.objects.filter(calendar__date=target_date)
     total_focus_time = sum(task.focus_time * task.cycle_count for task in tasks if task.cycle_count is not None)
     total_break_time = sum(task.break_time * task.cycle_count for task in tasks if task.cycle_count is not None)
-
-
-    #total_focus_time = sum(task.focus_time for task in tasks)
-    #total_break_time = sum(task.break_time for task in tasks)
     
     
-    # 해당 달의 1일부터 지정된 날짜까지의 기간
-    #start_date = target_date.replace(day=1)
-    
-    #tasks = Tasks.objects.filter(calendar__date__range=(start_date, target_date))
-
-    #total_focus_time = sum(task.focus_time for task in tasks)
-    #total_break_time = sum(task.break_time for task in tasks)
-
     emotions = [task.current_emotion for task in tasks] + [task.changed_emotion for task in tasks]
     emotion_categories = [Emotions.get_emotion_category(emotion) for emotion in emotions if emotion]
     emotion_counts = Counter(emotion_categories)

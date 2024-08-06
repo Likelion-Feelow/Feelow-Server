@@ -11,8 +11,6 @@ class ViewTaskSerializer(serializers.ModelSerializer):
         model = Tasks
         fields = ["id","date","task_name","task_duration","current_emotion","changed_emotion"]
         
-        
-        
 class TaskSerializer(serializers.ModelSerializer):
     calendar_id = serializers.PrimaryKeyRelatedField(source='calendar', read_only=True)
     user_id = serializers.PrimaryKeyRelatedField(source='user', read_only=True)
@@ -28,7 +26,6 @@ class CreateTaskSerializer(serializers.ModelSerializer):
     
     class Meta:
         model=Tasks
-        #fields=["user","date","calendar","task_name","task_duration","task_description"]
         fields = ["date", "task_name", "task_duration", "task_description"]
         
         
@@ -49,7 +46,6 @@ class EmotionUpdateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Tasks
-        #fields = ['current_emotion', 'changed_emotion', 'focus_time', 'break_time']
         fields = ['current_emotion', 'changed_emotion', 'focus_time', 'break_time', 'cycle_count']
 
     def update(self, instance, validated_data):
