@@ -114,7 +114,7 @@ def register(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
+'''
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def kakao_register(request):
@@ -270,3 +270,4 @@ def kakao_logout(request):
         return Response({'message': 'Successfully logged out'}, status=status.HTTP_200_OK)
     else:
         return Response({'error': 'Failed to log out'}, status=response.status_code)
+'''
