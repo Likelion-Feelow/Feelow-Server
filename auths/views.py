@@ -30,6 +30,11 @@ def logout(request):
         refresh_token = request.data.get("refresh_token")
         is_kakao_user = request.data.get("is_kakao_user", False)
         
+        # 디버깅 메시지 추가
+        print(f"Received refresh_token: {refresh_token}")
+        print(f"is_kakao_user: {is_kakao_user}")
+        print(f"Authorization header: {request.headers.get('Authorization')}")
+        
         # 일반 로그아웃 처리
         if refresh_token:
             token = RefreshToken(refresh_token)
@@ -45,6 +50,8 @@ def logout(request):
                     "Authorization": f"Bearer {access_token}"
                 }
                 response = requests.post(logout_url, headers=headers)
+                
+                print(f"Kakao logout response: {response.status_code} - {response.text}")
                 if response.status_code != 200:
                     return Response({'error': 'Failed to log out from Kakao'}, status=response.status_code)
         
@@ -53,6 +60,7 @@ def logout(request):
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 '''
+
 #원래 로그아웃 뷰. 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -64,6 +72,7 @@ def logout(request):
         return Response({'message': '로그아웃 성공'}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 

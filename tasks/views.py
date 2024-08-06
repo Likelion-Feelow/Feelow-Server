@@ -108,12 +108,14 @@ from .serializers import TaskStatisticsSerializer
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_task_statistics(request):
+    user = request.user  # 현재사용자
     year = int(request.GET.get('year'))
     month = int(request.GET.get('month'))
     day = int(request.GET.get('day'))
 
     target_date = date(year, month, day)
-    tasks = Tasks.objects.filter(calendar__date=target_date)
+    tasks = Tasks.objects.filter(user=user, calendar__date=target_date) #현재 사용자 구별 위해 추가
+    #tasks = Tasks.objects.filter(calendar__date=target_date)
     total_focus_time = sum(task.focus_time * task.cycle_count for task in tasks if task.cycle_count is not None)
     total_break_time = sum(task.break_time * task.cycle_count for task in tasks if task.cycle_count is not None)
 
