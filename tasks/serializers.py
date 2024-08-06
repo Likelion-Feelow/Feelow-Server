@@ -14,11 +14,10 @@ class ViewTaskSerializer(serializers.ModelSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     calendar_id = serializers.PrimaryKeyRelatedField(source='calendar', read_only=True)
     user_id = serializers.PrimaryKeyRelatedField(source='user', read_only=True)
-    task_id = serializers.IntegerField(source='id', read_only=True)
     
     class Meta:
         model = Tasks
-        fields = ["task_id", "calendar_id", "user_id", "task_name", "task_duration", "task_description"]
+        fields = ["id", "calendar_id", "user_id", "task_name", "task_duration", "task_description"]
 
         
 class CreateTaskSerializer(serializers.ModelSerializer):
@@ -42,7 +41,6 @@ class EmotionUpdateSerializer(serializers.ModelSerializer):
     #통계를 위해 수정함
     focus_time = serializers.IntegerField(required=False)
     break_time = serializers.IntegerField(required=False)
-    cycle_count = serializers.IntegerField(required=False)  # 사이클 수 추가
     
     class Meta:
         model = Tasks
@@ -59,14 +57,14 @@ class EmotionUpdateSerializer(serializers.ModelSerializer):
         return instance
     
     def update_superior_emotion(self, calendar):
-        tasks_for_day = Tasks.objects.filter(user=calendar.user, calendar=calendar, current_emotion__isnull=False).exclude(current_emotion='')
-        
+        #tasks_for_day = Tasks.objects.filter(user=calendar.user, calendar=calendar, current_emotion__isnull=False).exclude(current_emotion='')
+        tasks_for_day = Tasks.objects.filter(user=calendar.user, calendar=calendar)
         print("Tasks and Emotions:")
         for task in tasks_for_day:
             print(f"Task: {task.task_name}, Emotion: {task.current_emotion}")
         
 
-        emotion_categories = [Emotions.get_emotion_category(task.current_emotion) for task in tasks_for_day if task.current_emotion]
+        #emotion_categories = [Emotions.get_emotion_category(task.current_emotion) for task in tasks_for_day if task.current_emotion]
 
         emotion_categories = []
         for task in tasks_for_day:

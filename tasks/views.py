@@ -12,6 +12,7 @@ from datetime import datetime, timedelta, date
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 import os
 from auths.models import CustomUser
+import calendar, requests
 
 @api_view(['POST', 'GET'])
 @permission_classes([IsAuthenticated])
