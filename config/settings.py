@@ -130,6 +130,19 @@ DATABASES = {
     }
 }
 
+'''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'hackathon',
+        'USER': 'hackathon',
+        'PASSWORD': 'hackathon',
+        'HOST': 'localhost',
+        'PORT': '3306',  # MySQL의 기본 포트
+    }
+}
+'''
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
