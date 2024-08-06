@@ -10,6 +10,8 @@ from datetime import datetime, timedelta, date
 from collections import Counter
 import calendar
 
+#캘린더의 우세감정 색은 '오늘'이 아난 전날까지만 표시됨.
+#예를들어, 오늘이 8월 6일이면 캘린더에 5일까지의 색만 나타남.
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_calendar(request):

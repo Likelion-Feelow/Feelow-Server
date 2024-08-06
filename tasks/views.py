@@ -29,7 +29,8 @@ def create_and_get_task(request):
             serializer.save()
             task = serializer.save()
             response_serializer = TaskSerializer(task)
-            return Response(response_serializer.data, status=201)
+            response_data = response_serializer.data
+            return Response(response_data, status=201)        
         return Response(serializer.errors, status=400)
 
     if request.method == 'GET':
@@ -95,6 +96,9 @@ def get_chatgpt_feedback(task_name, emotion):
         
 '''
 #통게를 위해 추가
+
+#통계는 '오늘'이 아닌 전날까지의 데이터만 통계에 포함됨.
+#예를들어 오늘이 8월 6일이면 8월의 통계는 8월1일~8월5일까지의 데이터만 포함되는 결과임. 
 from .serializers import TaskStatisticsSerializer
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
